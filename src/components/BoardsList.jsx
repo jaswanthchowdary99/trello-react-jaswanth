@@ -13,9 +13,8 @@ export default function BoardLists() {
   const [openDialog, setOpenDialog] = useState(false);
   const [newListName, setNewListName] = useState('');
   const [loading, setLoading] = useState(true);
-  const apiKey = '39df2bffe3a2c03d74908a7de11350b7';
-  const apiToken = 'ATTA449fb5eaa45dfd26a241747c7485458e593bbaa24987ef480af93027985976b78B7D4CE9';
-
+  const apiKey = import.meta.env.VITE_APP_KEY;
+  const apiToken = import.meta.env.VITE_APP_TOKEN;
   useEffect(() => {
     fetchBoardData();
   }, [boardId]);
