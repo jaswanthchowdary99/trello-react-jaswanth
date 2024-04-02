@@ -5,8 +5,6 @@ import { useParams } from "react-router-dom";
 import { Container, Box, Button, TextField, Dialog, DialogTitle, DialogContent, IconButton,CircularProgress } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-
-
 export default function BoardLists() {
   const { boardId } = useParams();
   const [boardData, setBoardData] = useState({ name: '', lists: [] });
