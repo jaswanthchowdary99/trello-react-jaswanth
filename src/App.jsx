@@ -2,30 +2,37 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Boards from './components/Boards';
 import BoardLists from './components/BoardsList';
-import axios from 'axios';
-import { Dialog, DialogTitle, DialogContent, TextField, Button, CircularProgress } from '@mui/material';
+import FormComponent from './components/Form'; 
+import { Dialog, DialogTitle, DialogContent} from '@mui/material';
 import './App.css';
+import Loader from './components/Loader';
+import ErrorComponent from './components/Error'; 
+import SuccessComponent from './components/Success'; 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { getAllBoards, createBoard } from './API/api';
 
 const App = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [boardName, setBoardName] = useState('');
   const [boards, setBoards] = useState([]);
   const [loading, setLoading] = useState(true);
-  const apiKey = import.meta.env.VITE_APP_KEY;
-  const apiToken = import.meta.env.VITE_APP_TOKEN;
+  const [Error, setError] = useState(null); 
+  const [success, setSuccess] = useState(null); 
+
   useEffect(() => {
     fetchBoards();
   }, []);
 
   const fetchBoards = async () => {
     try {
-      const response = await axios.get(`https://api.trello.com/1/members/me/boards?key=${apiKey}&token=${apiToken}`);
-      setBoards(response.data);
-      setLoading(false); 
-      console.log(response.data)
+      const data = await getAllBoards();
+      setBoards(data);
+      setLoading(false);
+      setSuccess('Boards fetched successfully.'); 
     } catch (error) {
       console.error('Error fetching boards:', error);
+      setError('Error fetching boards. Please try again later.'); 
+      setLoading(false); 
     }
   };
 
@@ -38,23 +45,27 @@ const App = () => {
     setBoardName('');
   };
 
-  const handleCreateBoard = async (event) => {
-    event.preventDefault(); 
+  const handleCreateBoard = async (boardName) => {
     try {
-      const response = await axios.post(`https://api.trello.com/1/boards?key=${apiKey}&token=${apiToken}`, {
-        name: boardName
-      });
-      console.log('New board created:', response.data);
+      const response = await createBoard(boardName);
+      console.log('New board created:', response);
       fetchBoards();
       setOpenDialog(false);
-      setBoardName('');
+      setSuccess('Board created successfully.'); 
+      setError(null); 
     } catch (error) {
       console.error('Error creating board:', error);
+      setError('Error creating board. Please try again.'); 
+      setSuccess(null); 
     }
   };
+  
+  const handleCloseError = () => {
+    setError(null); 
+  };
 
-  const handleBoardNameChange = (event) => {
-    setBoardName(event.target.value);
+  const handleCloseSuccess = () => {
+    setSuccess(null);
   };
 
   return (
@@ -67,29 +78,17 @@ const App = () => {
               <>
                 <Header handleCreateBoardClick={handleCreateBoardClick} />
                 {loading ? (
-                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}>
-                    <CircularProgress />
-                  </div>
+                  <Loader />
                 ) : (
                   <Boards boards={boards} />
                 )}
+
+               {Error && <ErrorComponent open={!!Error} onClose={handleCloseError} message={Error} />} 
+               {success && <SuccessComponent open={!!success} onClose={handleCloseSuccess} message={success} />} 
                 <Dialog open={openDialog} onClose={handleCloseDialog} style={{ backgroundColor: 'transparent' }}>
                   <DialogTitle style={{ backgroundColor: 'rgb(29,30,37)', color: 'white' }}>Create a New Board</DialogTitle>
-                  <DialogContent style={{backgroundColor: 'rgb(194 196 202)'}}>
-                    <form onSubmit={handleCreateBoard}>
-                      <TextField
-                        autoFocus
-                        margin="dense"
-                        label="Board Name"
-                        type="text"
-                        fullWidth
-                        value={boardName}
-                        onChange={handleBoardNameChange}
-                        style={{background:'white',borderRadius:'5px',marginTop:'15px'}}
-                      />
-                      <Button style={{ color:'red',backgroundColor: 'rgb(194 196 202)',borderRadius:'0'}} onClick={handleCloseDialog}>Cancel</Button>
-                      <Button type="submit" style={{ color:'darkGreen',backgroundColor: 'rgb(194 196 202)',borderRadius:'0'}}>Create</Button>
-                    </form>
+                  <DialogContent style={{ backgroundColor: 'rgb(194 196 202)'}}>
+                    <FormComponent onSubmit={handleCreateBoard} onCancel={handleCloseDialog} />
                   </DialogContent>
                 </Dialog>
               </>

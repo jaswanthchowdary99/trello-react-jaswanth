@@ -1,40 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
+import {Button,TextField} from '@mui/material';
 import CheckList from './CheckList';
+import { getCardsByListId, createCard, deleteCard } from '../API/api';
+import ErrorComponent from './Error'; 
+import SuccessComponent from './Success'; 
 
 const Cards = ({ listId }) => {
   const [cards, setCards] = useState([]);
   const [newCardName, setNewCardName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
-  const apiKey = import.meta.env.VITE_APP_KEY;
-  const apiToken = import.meta.env.VITE_APP_TOKEN;
+  const [Error, setError] = useState(null); 
+  const [success, setSuccess] = useState(null); 
+
+
   useEffect(() => {
     fetchData();
   }, [listId]);
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`https://api.trello.com/1/lists/${listId}/cards?key=${apiKey}&token=${apiToken}`);
-      setCards(response.data);
+      const data = await getCardsByListId(listId);
+      setCards(data);
+      setError(null); 
     } catch (error) {
       console.error('Error fetching data:', error);
+      setError('Error fetching card data. Please try again.'); 
     }
   };
 
   const handleDelete = async (event, cardId) => {
-    event.stopPropagation(); 
+    event.stopPropagation();
     try {
-      const response = await axios.delete(`https://api.trello.com/1/cards/${cardId}?key=${apiKey}&token=${apiToken}`);
+      await deleteCard(cardId);
       fetchData();
       setIsAdding(false);
-      console.log(`Deleted card:`, response.data);
+      setSuccess('Card deleted successfully.')
+      console.log(`Deleted card:`, cardId);
     } catch (error) {
       console.error('Error deleting card:', error);
+      setError('Error deleting card. Please try again.'); 
     }
   };
 
@@ -49,13 +56,15 @@ const Cards = ({ listId }) => {
   const handleAddCard = async () => {
     if (newCardName.trim() !== '') {
       try {
-        const response = await axios.post(`https://api.trello.com/1/cards?key=${apiKey}&token=${apiToken}&idList=${listId}&name=${newCardName}`);
+        await createCard(listId, newCardName);
         fetchData();
         setNewCardName('');
         setIsAdding(false);
-        console.log(`New Card:`, response.data);
+        setSuccess('Card created successfully.')
+        console.log(`New card created`);
       } catch (error) {
         console.error('Error adding card:', error);
+        setError('Error adding card. Please try again.'); 
       }
     } else {
       setIsAdding(false);
@@ -71,33 +80,28 @@ const Cards = ({ listId }) => {
     setSelectedCard(null);
   };
 
+  const handleCloseSuccess = () => {
+    setSuccess(null);
+  };
+
+  const closeCard = () => {
+    setIsAdding(false);
+  }
+
   return (
     <div style={{
-      backgroundColor: 'rgb(194 196 202)',
-      padding: '10px',
-      borderRadius: '5px',
-      marginBottom: '10px'
+      backgroundColor: 'rgb(194 196 202)', padding: '10px',borderRadius: '5px',marginBottom: '10px'
     }}>
+      <ErrorComponent open={!!Error} onClose={() => setError(null)} message={Error} />
       {cards.length > 0 ? (
         cards.map(card => (
           <div key={card.id} style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '5px',
-            color: 'black',
-            fontSize: '16px',
-            cursor:'pointer',
-            background:'white',
-            borderRadius:'5px'
+            display: 'flex',alignItems: 'center', marginBottom: '5px',color: 'black',fontSize: '16px', cursor:'pointer', background:'white',borderRadius:'5px'
           }} onClick={() => handleCardClick(card)}>
             <span style={{ marginLeft: '10px' }}>{card.name}</span>
             <DeleteIcon
               style={{
-                marginLeft: 'auto',
-                cursor: 'pointer',
-                color: 'red',
-                fontSize:'20px',
-                padding:'5px'
+                marginLeft: 'auto',cursor: 'pointer',color: 'red',fontSize:'20px',padding:'5px'
               }}
               onClick={(event) => handleDelete(event, card.id)} 
             />
@@ -115,17 +119,13 @@ const Cards = ({ listId }) => {
             placeholder="Enter new card"
             style={{ margin: '1px', padding: '2px', borderRadius: "5px", borderColor: 'rgb(194 196 202)' }}
           />
-          <Button onClick={handleAddCard} variant="contained" color="primary" style={{ marginLeft: '5px' ,backgroundColor:'green'}}>Add</Button>
+          <Button onClick={handleAddCard} variant="contained" color="primary" style={{ marginLeft: '5px' ,backgroundColor:'green',fontWeight:'600',color:'black'}}>Add</Button>
+          <Button onClick={closeCard} variant="contained" color="primary" style={{ marginLeft: '5px' ,backgroundColor:'red',fontWeight:'600',color:'black'}}>X</Button>
         </div>
       ) : (
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            cursor: 'pointer',
-            color: 'white',
-            background:'rgb(29,33,37)',
-            borderRadius:'5px'
+            display: 'flex',alignItems: 'center', cursor: 'pointer',color: 'white',background:'rgb(29,33,37)',borderRadius:'5px'
           }}
           onClick={handleAddClick}
         >
@@ -134,6 +134,7 @@ const Cards = ({ listId }) => {
         </div>
       )}
       {selectedCard && <CheckList card={selectedCard}  onClose={handleClosePopup} />}
+      {success && <SuccessComponent open={!!success} onClose={handleCloseSuccess} message={success} />} 
     </div>
   );
 };
