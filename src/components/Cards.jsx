@@ -66,9 +66,7 @@ const Cards = ({ listId }) => {
         console.error('Error adding card:', error);
         setError('Error adding card. Please try again.'); 
       }
-    } else {
-      setIsAdding(false);
-    }
+    } 
   };
 
   const handleCardClick = (card) => {
