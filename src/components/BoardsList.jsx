@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useReducer } from "react";
 import Cards from "./Cards";
 import { useParams } from "react-router-dom";
 import { Container, Box, Button, Dialog, DialogTitle, DialogContent, IconButton } from '@mui/material';
@@ -9,14 +9,15 @@ import ErrorComponent from './Error';
 import SuccessComponent from './Success'; 
 import {getBoardById, getListsByBoardId, createList, deleteList } from '../API/api';
 import FormComponent from './Form';
+import { ACTIONS, Reducer } from '../Hooks/useReducer'; 
 
 export default function BoardLists() {
   const { boardId } = useParams();
-  const [boardData, setBoardData] = useState({ name: '', lists: [] });
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [Error, setError] = useState(null); 
   const [success, setSuccess] = useState(null); 
+  const [state, dispatch] = useReducer(Reducer, {name: '',lists: []});
 
   useEffect(() => {
     fetchBoardData();
@@ -28,7 +29,7 @@ export default function BoardLists() {
       const boardResponse = await getBoardById(boardId);
       const listsResponse = await getListsByBoardId(boardId);
       const info = { name: boardResponse.name, lists: listsResponse };
-      setBoardData(info);
+      dispatch({ type: ACTIONS.FETCH_LISTS, payload: info });
       setLoading(false); 
       setSuccess('Lists fetched successfully.')
     } catch (error) {
@@ -64,9 +65,8 @@ export default function BoardLists() {
     try {
       await deleteList(listId);
       console.log('List deleted:', listId);
-      const updatedLists = boardData.lists.filter(list => list.id !== listId);
-      const deletedList = { ...boardData, lists: updatedLists };
-      setBoardData(deletedList);
+      const updatedLists = state.lists.filter(list => list.id !== listId);
+      dispatch({ type: ACTIONS.DELETE_LISTS, payload: updatedLists });
       setSuccess('Lists deleted successfully.')
     } catch (error) {
       console.error('Error deleting list:', error);
@@ -88,7 +88,7 @@ export default function BoardLists() {
                
           <div  style ={{
             fontFamily: 'Roboto, Helvetica, Arial, sans-serif',fontWeight: '550', fontSize:'25px',padding:'5px', color: 'rgb(194 196 202)',
-          }}>{boardData.name}</div>
+          }}>{state.name}</div>
            
           <Button style={{backgroundColor:'rgb(141,144,153)',color:'black', fontWeight: '550', fontFamily: 'Roboto, Helvetica, Arial, sans-serif'}} variant="text" onClick={handleAddListClick}><AddIcon style={{color:'white'}} /> Add New List</Button>
         </Box>
@@ -99,7 +99,7 @@ export default function BoardLists() {
 
         ) : (
           <>
-            {boardData.lists.length === 0 ? (
+            {state.lists.length === 0 ? (
               <div style={{ textAlign: 'center',fontSize:'20px',fontWeight:'550', marginTop: '150px', fontFamily: 'Roboto, Helvetica, Arial, sans-serif', color: 'rgb(194 196 202)' }}>
                 No lists found.
               </div>
@@ -109,7 +109,7 @@ export default function BoardLists() {
                   display: 'flex',flexWrap: 'nowrap',overflowX: 'auto', WebkitOverflowScrolling: 'touch',marginBottom: '50px',height:'650px'
                 }}
               >
-                {boardData.lists.map(list => (
+                {state.lists.map(list => (
                   <Box
                     key={list.id}
                     sx={{

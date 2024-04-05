@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, LinearProgress } from '@mui/material';
+import { LinearProgress } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DomainVerificationIcon from '@mui/icons-material/DomainVerification';
 import { getChecklistDetails, getCheckItemsForChecklist, createCheckItem, deleteCheckItem, toggleCheckItem } from '../API/api';
 import Loader from './Loader';
 import ErrorComponent from './Error';
 import SuccessComponent from './Success';
+import ChecklistForm from './popup'; 
+import { Button } from '@mui/material';
 
 const CheckItems = ({ checklistId, selectCardId }) => {
   const [checkItems, setCheckItems] = useState([]);
-  const [newCheckItemName, setNewCheckItemName] = useState('');
-  const [isAddingItem, setIsAddingItem] = useState(false);
   const [checklistName, setChecklistName] = useState('');
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(true);
   const [Error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const [hoveredItem, setHoveredItem] = useState(null); 
+  const [hoveredItem, setHoveredItem] = useState(null);
+  const [isAddingItem, setIsAddingItem] = useState(false);
 
   useEffect(() => {
     fetchChecklistDetails();
@@ -26,7 +27,6 @@ const CheckItems = ({ checklistId, selectCardId }) => {
   useEffect(() => {
     updateProgress();
   }, [checkItems]);
-
 
   const fetchChecklistDetails = async () => {
     try {
@@ -38,7 +38,7 @@ const CheckItems = ({ checklistId, selectCardId }) => {
       setError('Error fetching checklist details. Please try again.');
     }
   };
- 
+
   const fetchCheckItems = async () => {
     try {
       setLoading(true);
@@ -52,29 +52,23 @@ const CheckItems = ({ checklistId, selectCardId }) => {
     }
   };
 
-
-
-  const handleAddCheckItem = async (event) => {
-    event.preventDefault();
-    try {
-      const items = await createCheckItem(checklistId, newCheckItemName);
-      fetchCheckItems();
-      setNewCheckItemName('');
-      setIsAddingItem(false);
-      setSuccess('CheckItem created successfully.');
-      console.log(`Added CheckItem:`, items);
-    } catch (error) {
-      console.error('Error adding check item:', error);
-      setError('Error adding check item. Please try again.');
+  const handleAddCheckItem = async (newCheckItemName) => {
+    if (newCheckItemName.trim() !== '') {
+      try {
+        const items = await createCheckItem(checklistId, newCheckItemName);
+        fetchCheckItems();
+        setSuccess('CheckItem created successfully.');
+      } catch (error) {
+        console.error('Error adding check item:', error);
+        setError('Error adding check item. Please try again.');
+      }
     }
   };
-
 
   const handleDeleteCheckItem = async (itemId) => {
     try {
       const items = await deleteCheckItem(checklistId, itemId);
       fetchCheckItems();
-      setIsAddingItem(false);
       console.log(`Deleted CheckItem:`, items);
       setSuccess('CheckItem deleted successfully.');
     } catch (error) {
@@ -83,8 +77,6 @@ const CheckItems = ({ checklistId, selectCardId }) => {
     }
   };
 
-
-  
   const handleToggleCheckItem = async (itemId, currentState) => {
     try {
       const toggle = await toggleCheckItem(selectCardId, checklistId, itemId, currentState);
@@ -101,14 +93,11 @@ const CheckItems = ({ checklistId, selectCardId }) => {
     setIsAddingItem(true);
   };
 
-
-
   const updateProgress = () => {
     const completedItems = checkItems.filter((item) => item.state === 'complete').length;
     const totalItems = checkItems.length;
     const newProgress = Math.floor((completedItems / totalItems) * 100) || 0;
     setProgress(newProgress);
-    setIsAddingItem(false);
   };
 
   const handleCloseSuccess = () => {
@@ -168,33 +157,11 @@ const CheckItems = ({ checklistId, selectCardId }) => {
           )}
 
           {isAddingItem ? (
-            <form onSubmit={handleAddCheckItem}>
-              <TextField
-                autoFocus
-                margin="dense"
-                size="small"
-                label="Enter Check Item"
-                type="text"
-                fullWidth
-                value={newCheckItemName}
-                onChange={(event) => setNewCheckItemName(event.target.value)}
-                InputProps={{
-                  placeholder: "New Checklist Name",
-                  style: { color: "white" }
-                }}
-                style={{ marginLeft: '40px', width: '350px' }}
-              />
-              <div style={{ display: 'flex', margin: '5px' }}>
-                <Button type="submit" color="primary" style={{
-                  backgroundColor: 'rgb(194 196 202)', marginLeft: '50px', color: 'black', fontWeight: '600', fontSize: '10px', padding: '5px'
-                }}>
-                  Add Item
-                </Button>
-                <Button onClick={() => setIsAddingItem(false)} color="secondary" variant="contained" style={{ fontWeight: '600', fontSize: '10px', padding: '5px', marginLeft: '5px', backgroundColor: 'red', color: 'black' }}>
-                  Close
-                </Button>
-              </div>
-            </form>
+            <ChecklistForm
+              onSubmit={handleAddCheckItem}
+              onCancel={() => setIsAddingItem(false)}
+              placeholder="Enter Check Item"
+            />
           ) : (
             <Button onClick={handleAddItemClick} color="primary" style={{
               fontWeight: '600', backgroundColor: 'rgb(194 196 202)', color: 'black', fontSize: '10px', padding: '5px', margin: '10px'
