@@ -8,7 +8,7 @@ axios.defaults.params = {
   key: apiKey,
   token: apiToken
 };
-
+/// displaying all the boards
 export const getAllBoards = async () => {
   try {
     const response = await axios.get(`${baseUrl}members/me/boards`);
@@ -19,6 +19,7 @@ export const getAllBoards = async () => {
   }
 };
 
+/// creating all the boards
 export const createBoard = async (boardName) => {
   try {
     const response = await axios.post(`${baseUrl}boards`, { name: boardName });
@@ -29,6 +30,7 @@ export const createBoard = async (boardName) => {
   }
 };
 
+/// displaying the name of the selected board
 export const getBoardById = async (boardId) => {
   try {
     const response = await axios.get(`${baseUrl}boards/${boardId}`);
@@ -39,6 +41,7 @@ export const getBoardById = async (boardId) => {
   }
 };
 
+/// displaying all the lists in the boards
 export const getListsByBoardId = async (boardId) => {
   try {
     const response = await axios.get(`${baseUrl}boards/${boardId}/lists`);
@@ -49,6 +52,7 @@ export const getListsByBoardId = async (boardId) => {
   }
 };
 
+/// creating new lists
 export const createList = async (boardId, listName) => {
   try {
     const response = await axios.post(`${baseUrl}boards/${boardId}/lists`, { name: listName });
@@ -59,6 +63,8 @@ export const createList = async (boardId, listName) => {
   }
 };
 
+
+/// deleting lists
 export const deleteList = async (listId) => {
   try {
     await axios.put(`${baseUrl}lists/${listId}/closed`, { value: true });
@@ -69,6 +75,8 @@ export const deleteList = async (listId) => {
   }
 };
 
+
+/// displaying all the cards
 export const getCardsByListId = async (listId) => {
   try {
     const response = await axios.get(`${baseUrl}lists/${listId}/cards`);
@@ -79,6 +87,7 @@ export const getCardsByListId = async (listId) => {
   }
 };
 
+/// creating new cards
 export const createCard = async (listId, cardName) => {
   try {
     const response = await axios.post(`${baseUrl}lists/${listId}/cards`, { name: cardName });
@@ -89,6 +98,7 @@ export const createCard = async (listId, cardName) => {
   }
 };
 
+/// deleting cards
 export const deleteCard = async (cardId) => {
   try {
     await axios.delete(`${baseUrl}cards/${cardId}`);
@@ -99,6 +109,7 @@ export const deleteCard = async (cardId) => {
   }
 };
 
+/// displaying the checklists in card
 export const getChecklistsByCardId = async (cardId) => {
   try {
     const response = await axios.get(`${baseUrl}cards/${cardId}/checklists`);
@@ -109,6 +120,7 @@ export const getChecklistsByCardId = async (cardId) => {
   }
 };
 
+/// creating checklist
 export const createChecklist = async (cardId, checklistName) => {
   try {
     const response = await axios.post(`${baseUrl}cards/${cardId}/checklists`, { name: checklistName });
@@ -119,6 +131,7 @@ export const createChecklist = async (cardId, checklistName) => {
   }
 };
 
+/// deleting checklist
 export const deleteChecklist = async (checklistId) => {
   try {
     await axios.delete(`${baseUrl}checklists/${checklistId}`);
@@ -129,6 +142,8 @@ export const deleteChecklist = async (checklistId) => {
   }
 };
 
+
+/// checklists name in the dialoge box 
 export const getChecklistDetails = async (checklistId) => {
   try {
     const response = await axios.get(`${baseUrl}checklists/${checklistId}`);
@@ -139,6 +154,8 @@ export const getChecklistDetails = async (checklistId) => {
   }
 };
 
+
+/// displaying checkitems
 export const getCheckItemsForChecklist = async (checklistId) => {
   try {
     const response = await axios.get(`${baseUrl}checklists/${checklistId}/checkItems`);
@@ -149,6 +166,7 @@ export const getCheckItemsForChecklist = async (checklistId) => {
   }
 };
 
+/// creating checkitems
 export const createCheckItem = async (checklistId, checkItemName) => {
   try {
     const response = await axios.post(`${baseUrl}checklists/${checklistId}/checkItems`, { name: checkItemName });
@@ -159,6 +177,7 @@ export const createCheckItem = async (checklistId, checkItemName) => {
   }
 };
 
+/// deleting checkitems
 export const deleteCheckItem = async (checklistId, itemId) => {
   try {
     await axios.delete(`${baseUrl}checklists/${checklistId}/checkItems/${itemId}`);
@@ -169,6 +188,7 @@ export const deleteCheckItem = async (checklistId, itemId) => {
   }
 };
 
+/// checking and unchecking checkitems
 export const toggleCheckItem = async (selectCardId, checklistId, itemId, currentState) => {
   try {
     const newState = currentState === 'complete' ? 'incomplete' : 'complete';

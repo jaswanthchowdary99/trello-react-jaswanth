@@ -14,7 +14,6 @@ export default function BoardLists() {
   const { boardId } = useParams();
   const [boardData, setBoardData] = useState({ name: '', lists: [] });
   const [openDialog, setOpenDialog] = useState(false);
-  const [newListName, setNewListName] = useState('');
   const [loading, setLoading] = useState(true);
   const [Error, setError] = useState(null); 
   const [success, setSuccess] = useState(null); 
@@ -23,6 +22,7 @@ export default function BoardLists() {
     fetchBoardData();
   }, [boardId]);
 
+  /// fetching all the lists in selected boards
   const fetchBoardData = async () => {
     try {
       const boardResponse = await getBoardById(boardId);
@@ -44,9 +44,9 @@ export default function BoardLists() {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setNewListName('');
   };
 
+  /// creating new lists inside the boards
   const handleCreateList = async (newListName) => {
     try {
       const response = await createList(boardId, newListName);
@@ -60,6 +60,7 @@ export default function BoardLists() {
     }
   };
 
+  /// deleting the lists
   const handleDeleteList = async (listId) => {
     try {
       await deleteList(listId);

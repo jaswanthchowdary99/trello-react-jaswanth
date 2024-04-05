@@ -22,6 +22,8 @@ const CheckList = ({ card, onClose }) => {
     }
   }, [card.id]);
 
+
+  /// fetching checklists in cards
   const fetchChecklists = async () => {
     try {
       setLoading(true); 
@@ -43,6 +45,7 @@ const CheckList = ({ card, onClose }) => {
     setNewCheckListName(event.target.value);
   };
 
+  /// creating new checklists
   const addCheckList = async (event) => {
     event.preventDefault(); 
     if (newCheckListName.trim() !== ''){
@@ -62,6 +65,8 @@ const CheckList = ({ card, onClose }) => {
   }
   };
 
+
+  /// deleting the checklists
   const deleteCheckList = async (checklistId) => {
     try {
       setLoading(true); 

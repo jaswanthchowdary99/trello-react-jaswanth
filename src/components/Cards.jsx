@@ -14,13 +14,17 @@ const Cards = ({ listId }) => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [Error, setError] = useState(null); 
   const [success, setSuccess] = useState(null); 
+  const [hoveredCard, setHoveredCard] = useState(null); 
 
 
   useEffect(() => {
-    fetchData();
+    fetchCardsData();
   }, [listId]);
 
-  const fetchData = async () => {
+
+
+ /// fetching the cards info  in lists 
+  const fetchCardsData = async () => {
     try {
       const data = await getCardsByListId(listId);
       setCards(data);
@@ -31,11 +35,13 @@ const Cards = ({ listId }) => {
     }
   };
 
-  const handleDelete = async (event, cardId) => {
+
+  /// deleting the cards 
+  const handleDeleteCard = async (event, cardId) => {
     event.stopPropagation();
     try {
       await deleteCard(cardId);
-      fetchData();
+      fetchCardsData();
       setIsAdding(false);
       setSuccess('Card deleted successfully.')
       console.log(`Deleted card:`, cardId);
@@ -52,12 +58,13 @@ const Cards = ({ listId }) => {
   const handleInputChange = (event) => {
     setNewCardName(event.target.value);
   };
-
+  
+  /// creating new cards
   const handleAddCard = async () => {
     if (newCardName.trim() !== '') {
       try {
         await createCard(listId, newCardName);
-        fetchData();
+        fetchCardsData();
         setNewCardName('');
         setIsAdding(false);
         setSuccess('Card created successfully.')
@@ -94,15 +101,20 @@ const Cards = ({ listId }) => {
       {cards.length > 0 ? (
         cards.map(card => (
           <div key={card.id} style={{
-            display: 'flex',alignItems: 'center', marginBottom: '5px',color: 'black',fontSize: '16px', cursor:'pointer', background:'white',borderRadius:'5px'
-          }} onClick={() => handleCardClick(card)}>
+            display: 'flex',alignItems: 'center',padding:'4px', marginBottom: '5px',color: 'black',fontSize: '17px', cursor:'pointer', background:'white',borderRadius:'5px'
+          }} onClick={() => handleCardClick(card)}
+          onMouseEnter={() => setHoveredCard(card.id)}
+          onMouseLeave={() => setHoveredCard(null)}
+          >
             <span style={{ marginLeft: '10px' }}>{card.name}</span>
+            {hoveredCard === card.id && (
             <DeleteIcon
               style={{
                 marginLeft: 'auto',cursor: 'pointer',color: 'red',fontSize:'20px',padding:'5px'
               }}
-              onClick={(event) => handleDelete(event, card.id)} 
+              onClick={(event) => handleDeleteCard(event, card.id)} 
             />
+            )}
           </div>
         ))
       ) : (
