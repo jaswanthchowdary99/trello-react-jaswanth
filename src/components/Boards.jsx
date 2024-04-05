@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Grid, Box } from '@mui/material';
 import ErrorComponent from './Error';
@@ -6,85 +6,87 @@ import Header from './Header';
 import FormComponent from './Form';
 import Loader from './Loader';
 import SuccessComponent from './Success';
-import { Dialog, DialogTitle, DialogContent} from '@mui/material';
+import { Dialog, DialogTitle, DialogContent } from '@mui/material';
 import { getAllBoards, createBoard } from '../API/api';
+import { BOARD_ACTIONS, boardReducer } from '../Hooks/useReducer'; 
 
 const Boards = () => {
   const [openDialog, setOpenDialog] = useState(false);
-  const [boards, setBoards] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [Error, setError] = useState(null); 
-  const [success, setSuccess] = useState(null); 
+  const [state, dispatch] = useReducer(boardReducer, {
+    loading: true,
+    boards: [],
+    error: null,
+    success: null,
+  });
 
   useEffect(() => {
     fetchBoards();
   }, []);
 
-  /// fetching all the boards data
   const fetchBoards = async () => {
     try {
       const data = await getAllBoards();
-      setBoards(data);
-      setLoading(false);
-      setSuccess('Boards fetched successfully.'); 
+      dispatch({ type: BOARD_ACTIONS.FETCH_BOARDS_SUCCESS, payload: data });
     } catch (error) {
       console.error('Error fetching boards:', error);
-      setError('Error fetching boards. Please try again later.'); 
-      setLoading(false); 
+      dispatch({ type: BOARD_ACTIONS.FETCH_BOARDS_ERROR });
     }
   };
- 
 
-  const handleCreateBoardClick = () => {
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
-
-
-  /// creating new boards
   const handleCreateBoard = async (boardName) => {
     try {
       const response = await createBoard(boardName);
       console.log('New board created:', response);
       fetchBoards();
       setOpenDialog(false);
-      setSuccess('Board created successfully.'); 
-      setError(null); 
+      dispatch({ type: BOARD_ACTIONS.CREATE_BOARD_SUCCESS });
     } catch (error) {
       console.error('Error creating board:', error);
-      setError('Error creating board. Please try again.'); 
-      setSuccess(null); 
+      dispatch({ type: BOARD_ACTIONS.CREATE_BOARD_ERROR });
     }
   };
-  
+
   const handleCloseError = () => {
-    setError(null); 
+    dispatch({ type: BOARD_ACTIONS.RESET_ERROR });
   };
 
   const handleCloseSuccess = () => {
-    setSuccess(null);
+    dispatch({ type: BOARD_ACTIONS.RESET_SUCCESS });
   };
 
-  if (!boards || boards.length === 0) {
+  if (!state.boards || state.boards.length === 0) {
     return <ErrorComponent message="No boards found." />;
   }
 
   return (
     <Container>
-      <Header handleCreateBoardClick={handleCreateBoardClick} />
-      {loading ? (
+      <Header handleCreateBoardClick={() => setOpenDialog(true)} />
+      {state.loading ? (
         <Loader />
       ) : (
         <Grid container spacing={2}>
-          {boards.map(data => (
+          {state.boards.map((data) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={data.id}>
               <Link to={`/boards/${data.id}`} style={{ textDecoration: 'none' }}>
                 <Box
                   sx={{
-                    background: 'linear-gradient(to right, rgb(75,59,142), rgb(117,61,138))',color: 'white',fontSize: '18px', marginTop:'50px', fontWeight: '550', padding: '20px',borderRadius: '8px',boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', textAlign: 'left',display: 'flex',flexDirection: 'column',  alignItems: 'flex-start',justifyContent: 'flex-start',height: '100px',fontFamily: 'Roboto, Helvetica, Arial, sans-serif',cursor:'pointer', textDecoration: 'none',
+                    background: 'linear-gradient(to right, rgb(75,59,142), rgb(117,61,138))',
+                    color: 'white',
+                    fontSize: '18px',
+                    marginTop: '50px',
+                    fontWeight: '550',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                    textAlign: 'left',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    height: '100px',
+                    fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
                   }}
                 >
                   {data.name}
@@ -94,14 +96,14 @@ const Boards = () => {
           ))}
         </Grid>
       )}
-      <Dialog open={openDialog} onClose={handleCloseDialog} style={{ backgroundColor: 'transparent' }}>
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} style={{ backgroundColor: 'transparent' }}>
         <DialogTitle style={{ backgroundColor: 'rgb(29,30,37)', color: 'white' }}>Create a New Board</DialogTitle>
-        <DialogContent style={{ backgroundColor: 'rgb(194 196 202)'}}>
-          <FormComponent onSubmit={handleCreateBoard} onCancel={handleCloseDialog} />
+        <DialogContent style={{ backgroundColor: 'rgb(194 196 202)' }}>
+          <FormComponent onSubmit={handleCreateBoard} onCancel={() => setOpenDialog(false)} />
         </DialogContent>
       </Dialog>
-      {Error && <ErrorComponent open={!!Error} onClose={handleCloseError} message={Error} />} 
-      {success && <SuccessComponent open={!!success} onClose={handleCloseSuccess} message={success} />} 
+      {state.error && <ErrorComponent open={true} onClose={handleCloseError} message={state.error} />}
+      {state.success && <SuccessComponent open={true} onClose={handleCloseSuccess} message={state.success} />}
     </Container>
   );
 };

@@ -23,7 +23,7 @@ const Cards = ({ listId }) => {
 
 
 
- /// fetching the cards info  in lists 
+
   const fetchCardsData = async () => {
     try {
       const data = await getCardsByListId(listId);
@@ -36,7 +36,7 @@ const Cards = ({ listId }) => {
   };
 
 
-  /// deleting the cards 
+
   const handleDeleteCard = async (event, cardId) => {
     event.stopPropagation();
     try {
@@ -59,7 +59,7 @@ const Cards = ({ listId }) => {
     setNewCardName(event.target.value);
   };
   
-  /// creating new cards
+
   const handleAddCard = async () => {
     if (newCardName.trim() !== '') {
       try {

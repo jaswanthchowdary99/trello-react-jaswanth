@@ -27,7 +27,7 @@ const CheckItems = ({ checklistId, selectCardId }) => {
     updateProgress();
   }, [checkItems]);
 
-  /// this is for displaying the checklists name in the dialoge box 
+
   const fetchChecklistDetails = async () => {
     try {
       const checklist = await getChecklistDetails(checklistId);
@@ -38,8 +38,7 @@ const CheckItems = ({ checklistId, selectCardId }) => {
       setError('Error fetching checklist details. Please try again.');
     }
   };
-
- /// fetching all the checkitems details    
+ 
   const fetchCheckItems = async () => {
     try {
       setLoading(true);
@@ -54,7 +53,7 @@ const CheckItems = ({ checklistId, selectCardId }) => {
   };
 
 
-  /// creating new checkitems
+
   const handleAddCheckItem = async (event) => {
     event.preventDefault();
     try {
@@ -71,7 +70,6 @@ const CheckItems = ({ checklistId, selectCardId }) => {
   };
 
 
-  /// deleting the selected checkitems 
   const handleDeleteCheckItem = async (itemId) => {
     try {
       const items = await deleteCheckItem(checklistId, itemId);
@@ -86,7 +84,7 @@ const CheckItems = ({ checklistId, selectCardId }) => {
   };
 
 
-  /// checking and unchecking all the checkitems
+  
   const handleToggleCheckItem = async (itemId, currentState) => {
     try {
       const toggle = await toggleCheckItem(selectCardId, checklistId, itemId, currentState);
@@ -104,7 +102,7 @@ const CheckItems = ({ checklistId, selectCardId }) => {
   };
 
 
-  /// logic for the checking and unchecking the checkboxes
+
   const updateProgress = () => {
     const completedItems = checkItems.filter((item) => item.state === 'complete').length;
     const totalItems = checkItems.length;

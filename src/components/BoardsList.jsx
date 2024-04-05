@@ -22,7 +22,7 @@ export default function BoardLists() {
     fetchBoardData();
   }, [boardId]);
 
-  /// fetching all the lists in selected boards
+
   const fetchBoardData = async () => {
     try {
       const boardResponse = await getBoardById(boardId);
@@ -46,7 +46,6 @@ export default function BoardLists() {
     setOpenDialog(false);
   };
 
-  /// creating new lists inside the boards
   const handleCreateList = async (newListName) => {
     try {
       const response = await createList(boardId, newListName);
@@ -60,7 +59,7 @@ export default function BoardLists() {
     }
   };
 
-  /// deleting the lists
+
   const handleDeleteList = async (listId) => {
     try {
       await deleteList(listId);
