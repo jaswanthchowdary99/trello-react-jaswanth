@@ -3,6 +3,7 @@ export const ACTIONS = {
     CREATE_BOARD: 'CREATE_BOARD',
     FETCH_LISTS:'FETCH_LISTS',
     DELETE_LISTS:'DELETE_LISTS',
+    SET_CARDS:'SET_CARDS'
 
   };
     
@@ -25,8 +26,12 @@ export const ACTIONS = {
                 return{
                 ...state, lists: action.payload
                 }
-      default:
-        return state;
+                case ACTIONS.SET_CARDS:
+                   return{
+                     ...state, cards: action.payload 
+                    };
+                 default:
+                   return state;
     }
   };
   

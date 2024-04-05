@@ -11,13 +11,18 @@ import {getBoardById, getListsByBoardId, createList, deleteList } from '../API/a
 import FormComponent from './Form';
 import { ACTIONS, Reducer } from '../Hooks/useReducer'; 
 
+const initialState ={
+  name: '',
+  lists: []
+}
+
 export default function BoardLists() {
   const { boardId } = useParams();
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [Error, setError] = useState(null); 
   const [success, setSuccess] = useState(null); 
-  const [state, dispatch] = useReducer(Reducer, {name: '',lists: []});
+  const [state, dispatch] = useReducer(Reducer, initialState);
 
   useEffect(() => {
     fetchBoardData();

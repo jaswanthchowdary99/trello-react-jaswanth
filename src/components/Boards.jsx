@@ -10,13 +10,16 @@ import { Dialog, DialogTitle, DialogContent } from '@mui/material';
 import { getAllBoards, createBoard } from '../API/api';
 import { ACTIONS, Reducer } from '../Hooks/useReducer'; 
 
+const initialState ={
+  boards: []
+}
+
 const Boards = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [Error, setError] = useState(null); 
   const [success, setSuccess] = useState(null); 
-  const [state, dispatch] = useReducer(Reducer, {boards: [],});
-
+  const [state, dispatch] = useReducer(Reducer, initialState);
   useEffect(() => {
     fetchBoards();
   }, []);

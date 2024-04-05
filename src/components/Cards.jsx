@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useReducer} from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import {Button,TextField} from '@mui/material';
@@ -8,14 +8,17 @@ import ErrorComponent from './Error';
 import SuccessComponent from './Success'; 
 import { ACTIONS, Reducer } from '../Hooks/useReducer';
 
-const Cards = ({ listId }) => {
-  const [cards, setCards] = useState([]);
+const initialState ={
+  cards:[]
+}
+  const Cards = ({ listId }) => {
   const [newCardName, setNewCardName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [Error, setError] = useState(null); 
   const [success, setSuccess] = useState(null); 
   const [hoveredCard, setHoveredCard] = useState(null); 
+  const[state, dispatch] = useReducer(Reducer,initialState)
 
 
   useEffect(() => {
@@ -28,7 +31,7 @@ const Cards = ({ listId }) => {
   const fetchCardsData = async () => {
     try {
       const data = await getCardsByListId(listId);
-      setCards(data);
+      dispatch({ type: ACTIONS.SET_CARDS, payload: data });
       setError(null); 
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -99,8 +102,8 @@ const Cards = ({ listId }) => {
       backgroundColor: 'rgb(194 196 202)', padding: '10px',borderRadius: '5px',marginBottom: '10px'
     }}>
       <ErrorComponent open={!!Error} onClose={() => setError(null)} message={Error} />
-      {cards.length > 0 ? (
-        cards.map(card => (
+      {state.cards.length > 0 ? (
+        state.cards.map(card => (
           <div key={card.id} style={{
             display: 'flex',alignItems: 'center',padding:'4px', marginBottom: '5px',color: 'black',fontSize: '17px', cursor:'pointer', background:'white',borderRadius:'5px'
           }} onClick={() => handleCardClick(card)}
