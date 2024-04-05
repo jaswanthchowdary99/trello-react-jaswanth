@@ -11,7 +11,6 @@ import { getAllBoards, createBoard } from '../API/api';
 
 const Boards = () => {
   const [openDialog, setOpenDialog] = useState(false);
-  const [boardName, setBoardName] = useState('');
   const [boards, setBoards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [Error, setError] = useState(null); 
@@ -40,7 +39,6 @@ const Boards = () => {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setBoardName('');
   };
 
   const handleCreateBoard = async (boardName) => {

@@ -14,7 +14,6 @@ export default function BoardLists() {
   const { boardId } = useParams();
   const [boardData, setBoardData] = useState({ name: '', lists: [] });
   const [openDialog, setOpenDialog] = useState(false);
-  const [newListName, setNewListName] = useState('');
   const [loading, setLoading] = useState(true);
   const [Error, setError] = useState(null); 
   const [success, setSuccess] = useState(null); 
@@ -44,7 +43,6 @@ export default function BoardLists() {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setNewListName('');
   };
 
   const handleCreateList = async (newListName) => {
